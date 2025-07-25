@@ -4,31 +4,44 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-console.log('=== STARTING JOBSCANS BUILD WITH FULL DIAGNOSTICS ===');
-console.log(`Build environment: ${process.env.NODE_ENV || 'undefined'}`);
-console.log(`Working directory: ${process.cwd()}`);
-console.log(`Node version: ${process.version}`);
+// Enable detailed diagnostics with DEBUG=true environment variable
+const DEBUG_BUILD = process.env.DEBUG === 'true';
+
+if (DEBUG_BUILD) {
+  console.log('=== STARTING JOBSCANS BUILD WITH FULL DIAGNOSTICS ===');
+  console.log(`Build environment: ${process.env.NODE_ENV || 'undefined'}`);
+  console.log(`Working directory: ${process.cwd()}`);
+  console.log(`Node version: ${process.version}`);
+} else {
+  console.log('Starting JobScans build...');
+}
 
 // Environment diagnostics
-console.log('\n=== ENVIRONMENT DIAGNOSTICS ===');
+if (DEBUG_BUILD) console.log('\n=== ENVIRONMENT DIAGNOSTICS ===');
 const hasTogetherKey = !!process.env.TOGETHER_API_KEY;
-console.log(`TOGETHER_API_KEY: ${hasTogetherKey ? 'Available' : 'Missing'}`);
-console.log(`DATABASE_URL: ${process.env.DATABASE_URL ? 'Available' : 'Missing'}`);
-console.log(`STRIPE keys: ${process.env.STRIPE_SECRET_KEY ? 'Available' : 'Missing'}`);
+if (DEBUG_BUILD) {
+  console.log(`TOGETHER_API_KEY: ${hasTogetherKey ? 'Available' : 'Missing'}`);
+  console.log(`DATABASE_URL: ${process.env.DATABASE_URL ? 'Available' : 'Missing'}`);
+  console.log(`STRIPE keys: ${process.env.STRIPE_SECRET_KEY ? 'Available' : 'Missing'}`);
+}
 
-// File system diagnostics
-console.log('\n=== FILE SYSTEM DIAGNOSTICS ===');
+// File system diagnostics  
+if (DEBUG_BUILD) console.log('\n=== FILE SYSTEM DIAGNOSTICS ===');
 const serverRoutes = path.join(process.cwd(), 'server/routes.ts');
 const packageJson = path.join(process.cwd(), 'package.json');
-console.log(`server/routes.ts exists: ${fs.existsSync(serverRoutes)}`);
-console.log(`package.json exists: ${fs.existsSync(packageJson)}`);
+if (DEBUG_BUILD) {
+  console.log(`server/routes.ts exists: ${fs.existsSync(serverRoutes)}`);
+  console.log(`package.json exists: ${fs.existsSync(packageJson)}`);
+}
 
 if (fs.existsSync('node_modules')) {
-  console.log('node_modules directory exists');
-  const esbuildPath = path.join(process.cwd(), 'node_modules/.bin/esbuild');
-  const vitePath = path.join(process.cwd(), 'node_modules/.bin/vite');
-  console.log(`esbuild binary exists: ${fs.existsSync(esbuildPath)}`);
-  console.log(`vite binary exists: ${fs.existsSync(vitePath)}`);
+  if (DEBUG_BUILD) {
+    console.log('node_modules directory exists');
+    const esbuildPath = path.join(process.cwd(), 'node_modules/.bin/esbuild');
+    const vitePath = path.join(process.cwd(), 'node_modules/.bin/vite');
+    console.log(`esbuild binary exists: ${fs.existsSync(esbuildPath)}`);
+    console.log(`vite binary exists: ${fs.existsSync(vitePath)}`);
+  }
 } else {
   console.log('node_modules directory missing!');
 }
@@ -38,7 +51,7 @@ process.env.VITE_SERVICE_MODE = hasTogetherKey ? 'full' : 'minimal';
 
 // Enhanced command execution with detailed error reporting
 function tryCommand(commands, description) {
-  console.log(`\n=== ${description.toUpperCase()} ===`);
+  if (DEBUG_BUILD) console.log(`\n=== ${description.toUpperCase()} ===`);
   
   for (let i = 0; i < commands.length; i++) {
     const cmd = commands[i];
