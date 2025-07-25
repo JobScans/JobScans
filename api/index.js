@@ -1,5 +1,5 @@
 // Vercel serverless function wrapper for JobScans API
-const express = require('express');
+import express from 'express';
 
 // Create a single app instance
 const app = express();
@@ -107,7 +107,7 @@ async function initializeRoutes() {
 }
 
 // Export for Vercel
-module.exports = async (req, res) => {
+export default async (req, res) => {
   await initializeRoutes();
   return app(req, res);
 };
