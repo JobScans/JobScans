@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { analyzeJob } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { ArchiveView } from "@/components/archive-view";
@@ -9,7 +9,6 @@ import { OutreachModal } from "@/components/outreach-modal";
 import { UsageIndicator } from "@/components/usage-indicator";
 import { ServiceModeBanner } from "@/components/service-mode-banner";
 import { useLocation } from "wouter";
-import { getServiceMode } from "@/lib/service-detection";
 import type { JobAnalysisResult } from "@shared/schema";
 
 // Simple job input parser
