@@ -100,9 +100,10 @@ export default function Home() {
     setMessage("Analyzing job posting... This may take a few seconds.");
     setCurrentScan(null);
     
-    const isUrl = input.trim().startsWith("http");
+    const parsedData = parseJobInput(input.trim());
     analyzeJobMutation.mutate({
-      ...(isUrl ? { jobUrl: input.trim() } : { jobDescription: input.trim() })
+      jobDescription: parsedData.jobDescription,
+      jobUrl: parsedData.jobUrl
     });
   };
 
