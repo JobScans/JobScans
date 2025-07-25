@@ -116,10 +116,10 @@ async function initializeRoutes() {
 
         const { jobTitle, companyName, jobDescription, jobUrl } = req.body;
         
-        if (!jobDescription || jobDescription.trim().length < 10) {
+        if (!jobDescription || jobDescription.trim().length < 20) {
           return res.status(400).json({
             error: 'Invalid input',
-            message: 'Job description must be at least 10 characters long'
+            message: 'Please provide a job description or URL with sufficient detail for analysis'
           });
         }
 
