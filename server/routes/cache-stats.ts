@@ -30,5 +30,5 @@ export function registerCacheStatsRoutes(app: Express) {
     }
   });
 
-  // Note: community-fund-status endpoint moved to main routes.ts file
+  // Note: usage-status endpoint moved to main routes.ts file
 }
