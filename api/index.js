@@ -32,10 +32,9 @@ async function initializeRoutes() {
       const routesModule = await import('../dist/index.js');
       registerRoutes = routesModule.registerRoutes;
     } catch (distError) {
-      console.log('Compiled routes not found, importing TypeScript directly...');
-      // Fallback to TypeScript source (requires ts-node or similar)
-      const routesModule = await import('../server/routes.ts');
-      registerRoutes = routesModule.registerRoutes;
+      console.log('Compiled routes not found, trying alternate paths...');
+      // TypeScript files aren't available in Vercel deployment - skip direct import
+      throw new Error('Compiled routes not available, using fallback endpoints');
     }
     
     if (registerRoutes) {
@@ -100,6 +99,64 @@ async function initializeRoutes() {
         status: hasTogetherKey ? 'healthy' : 'critical',
         note: hasTogetherKey ? 'Service operational' : 'API key required'
       });
+    });
+
+    // Add the analyze-job endpoint for AI analysis
+    app.post('/api/analyze-job', async (req, res) => {
+      try {
+        const hasTogetherKey = !!process.env.TOGETHER_API_KEY;
+        
+        if (!hasTogetherKey) {
+          return res.status(503).json({
+            error: 'AI analysis unavailable',
+            message: 'TOGETHER_API_KEY not configured',
+            serviceMode: 'minimal'
+          });
+        }
+
+        const { jobTitle, companyName, jobDescription, jobUrl } = req.body;
+        
+        if (!jobDescription || jobDescription.trim().length < 10) {
+          return res.status(400).json({
+            error: 'Invalid input',
+            message: 'Job description must be at least 10 characters long'
+          });
+        }
+
+        // Simple fallback analysis response
+        const analysisResult = {
+          id: Date.now(),
+          jobTitle: jobTitle || 'Job Analysis',
+          companyName: companyName || 'Unknown Company',
+          jobUrl: jobUrl || '',
+          jobDescription,
+          ghostJobLikelihood: 25,
+          confidenceScore: 0.7,
+          reasoning: 'Fallback analysis - full AI analysis requires proper route initialization',
+          redFlags: [
+            {
+              category: 'posting_quality',
+              severity: 'low',
+              description: 'Using fallback analysis mode',
+              impact: 'Analysis may be incomplete'
+            }
+          ],
+          recommendations: [
+            'This is a fallback analysis. For detailed AI insights, please check deployment configuration.'
+          ],
+          overallAssessment: 'moderate',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        res.json(analysisResult);
+      } catch (error) {
+        console.error('Analysis error:', error);
+        res.status(500).json({
+          error: 'Analysis failed',
+          message: error.message
+        });
+      }
     });
     
     routesInitialized = true;
