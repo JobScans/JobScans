@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 // Enhanced diagnostic build script for Vercel deployment debugging
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { execSync } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Enable detailed diagnostics with DEBUG=true environment variable
 const DEBUG_BUILD = process.env.DEBUG === 'true';
@@ -95,20 +98,20 @@ try {
   const frontendDist = path.join(process.cwd(), 'dist/public');
   console.log(`\nFrontend build output exists: ${fs.existsSync(frontendDist)}`);
   
-  // Build backend with enhanced diagnostics - create both index.js and routes.js
+  // Build backend with proper route exports
   tryCommand([
-    'npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist',
-    './node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist',
-    'node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist'
-  ], 'backend build');
+    'npx esbuild server/vercel-routes.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/routes.js',
+    './node_modules/.bin/esbuild server/vercel-routes.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/routes.js',
+    'node_modules/.bin/esbuild server/vercel-routes.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/routes.js'
+  ], 'backend routes build');
   
   // Verify backend build output
-  const backendDist = path.join(process.cwd(), 'dist/index.js');
-  console.log(`\nBackend build output exists: ${fs.existsSync(backendDist)}`);
+  const backendDist = path.join(process.cwd(), 'dist/routes.js');
+  console.log(`\nBackend routes build output exists: ${fs.existsSync(backendDist)}`);
   
   if (fs.existsSync(backendDist)) {
     const fileSize = fs.statSync(backendDist).size;
-    console.log(`Backend build size: ${fileSize} bytes`);
+    console.log(`Backend routes build size: ${fileSize} bytes`);
     
     if (DEBUG_BUILD) {
       console.log('\nChecking compiled routes exports...');
