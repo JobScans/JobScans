@@ -31,7 +31,7 @@ export default function DonateSuccess() {
               </CardTitle>
               <div className="space-y-4 text-sage-600">
                 <p className="text-lg">
-                  Thank you for supporting the JobShield community! 
+                  Thank you for supporting the JobScans community! 
                 </p>
                 <p>
                   Your contribution helps maintain free AI-powered job analysis for job seekers everywhere.
@@ -54,7 +54,7 @@ export default function DonateSuccess() {
                 <Link href="/">
                   <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to JobShield
+                    Back to JobScans
                   </Button>
                 </Link>
                 
