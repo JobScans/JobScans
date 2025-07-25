@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { analyzeJob } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { ArchiveView } from "@/components/archive-view";
@@ -9,6 +9,7 @@ import { OutreachModal } from "@/components/outreach-modal";
 import { UsageIndicator } from "@/components/usage-indicator";
 import { ServiceModeBanner } from "@/components/service-mode-banner";
 import { useLocation } from "wouter";
+import { getServiceMode } from "@/lib/service-detection";
 import type { JobAnalysisResult } from "@shared/schema";
 
 // Simple job input parser
@@ -56,16 +57,8 @@ export default function Home() {
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
 
-  // Get fund status for service mode
-  const { data: fundStatus } = useQuery<{
-    serviceMode?: {
-      mode: string;
-      message: string;
-    };
-  }>({
-    queryKey: ['/api/community-fund-status'],
-    refetchInterval: 30000,
-  });
+  // Get fund status for service mode using client-side detection
+  const fundStatus = getServiceMode();
 
   const analyzeJobMutation = useMutation({
     mutationFn: analyzeJob,
@@ -471,7 +464,7 @@ This analysis is for informational purposes only. Always conduct your own resear
         )}
 
         {/* Usage Indicator */}
-        <UsageIndicator />
+        <UsageIndicator fundStatus={fundStatus} />
         </div>
       </div>
       
