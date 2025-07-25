@@ -1,5 +1,5 @@
 // Simple test endpoint to verify basic Vercel functionality
-module.exports = (req, res) => {
+export default (req, res) => {
   console.log('Test endpoint called');
   console.log('Environment check:', {
     nodeVersion: process.version,
