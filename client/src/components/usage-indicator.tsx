@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from './ui/button';
 
 interface ServiceMode {
@@ -36,18 +37,16 @@ interface UsageStats {
   note: string;
 }
 
-interface UsageIndicatorProps {
-  fundStatus: any;
-}
-
-export function UsageIndicator({ fundStatus }: UsageIndicatorProps) {
+export function UsageIndicator() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [showOutreachCost, setShowOutreachCost] = useState(false);
 
-  // Use the passed fundStatus instead of API call
-  const apiResponse = fundStatus;
-  const isLoading = false;
+  // Fetch usage status from API
+  const { data: apiResponse, isLoading } = useQuery({
+    queryKey: ['/api/community-fund-status'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
   // Check if user previously hid the indicator
   useEffect(() => {
