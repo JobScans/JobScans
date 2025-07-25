@@ -31,8 +31,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register enhanced service status routes
   registerServiceStatusRoutes(app);
 
-  // Usage status endpoint (replaces community-fund-status)
-  app.get("/api/community-fund-status", async (req, res) => {
+  // Usage tracker status endpoint
+  app.get("/api/usage-status", async (req, res) => {
     try {
       // Simple API key detection for service mode
       const hasTogetherKey = !!process.env.TOGETHER_API_KEY;
