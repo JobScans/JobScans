@@ -57,7 +57,12 @@ export default function Home() {
   const [location, setLocation] = useLocation();
 
   // Get fund status for service mode
-  const { data: fundStatus } = useQuery({
+  const { data: fundStatus } = useQuery<{
+    serviceMode?: {
+      mode: string;
+      message: string;
+    };
+  }>({
     queryKey: ['/api/community-fund-status'],
     refetchInterval: 30000,
   });
@@ -100,43 +105,7 @@ export default function Home() {
     });
   };
 
-  const showDemoResult = () => {
-    const demoResult: JobAnalysisResult = {
-      scanId: 1,
-      id: 1,
-      jobTitle: "Senior Software Engineer - AI/ML",
-      company: "TechCorp Solutions",
-      originalUrl: "https://linkedin.com/jobs/view/3456789",
-      originalDescription: "We are seeking a rockstar ninja developer who can work in a fast-paced, high-energy startup environment. Must have 10+ years experience with all programming languages and frameworks. Immediate hire needed! Competitive salary negotiable. Only the best of the best need apply - we move fast and break things!",
-      ghostLikelihoodScore: 85,
-      ghostLikelihoodLevel: "High",
-      redFlags: [
-        {
-          flag: "Buzzword stuffing",
-          explanation: "Terms like 'rockstar' and 'ninja' often indicate unclear role expectations",
-          severity: "medium"
-        },
-        {
-          flag: "Unrealistic requirements",
-          explanation: "Requiring expertise in 'all programming languages' is unrealistic and indicates poor planning",
-          severity: "high"
-        },
-        {
-          flag: "High urgency keywords",
-          explanation: "Phrases like 'immediate hire' often signal high turnover or desperation",
-          severity: "high"
-        }
-      ],
-      aiSummary: "This posting shows multiple red flags typical of ghost jobs or poorly managed hiring processes. The unrealistic skill requirements, generic buzzwords, and urgency signals suggest this may be a time-waster. Recommend proceeding with caution and asking specific questions about the role during any interview.",
-      confidenceExplanation: "Analysis based on common patterns in ghost job postings",
-      createdAt: new Date(),
-      isSharedToArchive: false
-    };
-    
-    setCurrentScan(demoResult);
-    setInput("We are seeking a rockstar ninja developer who can work in a fast-paced, high-energy startup environment. Must have 10+ years experience with all programming languages and frameworks. Immediate hire needed! Competitive salary negotiable. Only the best of the best need apply - we move fast and break things!");
-    setMessage("Demo analysis complete! Here's what we found.");
-  };
+
 
   const handleNewScan = () => {
     setCurrentScan(null);
@@ -242,7 +211,7 @@ This analysis is for informational purposes only. Always conduct your own resear
               )}
 
               {/* AI Provider Status */}
-              {fundStatus?.serviceMode?.mode === 'full' ? (
+              {fundStatus && fundStatus.serviceMode && fundStatus.serviceMode.mode === 'full' ? (
                 <div className="mb-6 p-3 bg-emerald-50 rounded-lg border border-emerald-200 text-center">
                   <p className="text-emerald-700 text-sm">
                     ✨ AI Analysis Ready - Using Qwen2.5 7B
@@ -255,7 +224,7 @@ This analysis is for informational purposes only. Always conduct your own resear
                     <h3 className="text-red-800 font-semibold">AI Analysis Temporarily Unavailable</h3>
                   </div>
                   <p className="text-red-700 text-sm text-center mb-3">
-                    {fundStatus?.serviceMode?.message || 'Fresh AI analysis is currently unavailable due to funding limitations.'}
+                    {(fundStatus && fundStatus.serviceMode && fundStatus.serviceMode.message) || 'Fresh AI analysis is currently unavailable due to funding limitations.'}
                   </p>
                   <div className="flex justify-center space-x-4">
                     <Button
@@ -297,13 +266,6 @@ This analysis is for informational purposes only. Always conduct your own resear
                   className="flex-1 bg-stone-600 hover:bg-stone-700 text-white py-3 font-semibold"
                 >
                   {loading ? "Analyzing..." : "🔍 Analyze Job Posting"}
-                </Button>
-                <Button 
-                  onClick={showDemoResult}
-                  variant="outline"
-                  className="px-6 border-stone-400 text-stone-700 hover:bg-stone-100"
-                >
-                  Demo
                 </Button>
                 <Button 
                   variant="outline"
@@ -516,7 +478,7 @@ This analysis is for informational purposes only. Always conduct your own resear
       {/* Footer */}
       <footer className="py-6 border-t border-stone-300 bg-stone-50">
         <div className="text-center">
-          <p className="text-stone-600">JobShield © 2025</p>
+          <p className="text-stone-600">JobScans © 2025</p>
         </div>
       </footer>
     </div>
