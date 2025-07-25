@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { analyzeJob } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+
 import { ArchiveView } from "@/components/archive-view";
 import { OutreachModal } from "@/components/outreach-modal";
 import { UsageIndicator } from "@/components/usage-indicator";
