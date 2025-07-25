@@ -461,14 +461,22 @@ This analysis is for informational purposes only. Always conduct your own resear
         )}
 
         {/* Archive Section */}
-        {showArchive && <ArchiveView onClose={() => setShowArchive(false)} />}
+        {showArchive && (
+          <ArchiveView 
+            onBack={() => setShowArchive(false)} 
+            onViewScan={(scan) => {
+              setCurrentScan(scan);
+              setShowArchive(false);
+            }}
+          />
+        )}
 
         {/* Outreach Modal */}
         {currentScan && (
           <OutreachModal
             isOpen={showOutreachModal}
             onClose={() => setShowOutreachModal(false)}
-            scanData={currentScan}
+            scan={currentScan}
           />
         )}
 
