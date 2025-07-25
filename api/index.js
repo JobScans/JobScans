@@ -29,7 +29,7 @@ async function initializeRoutes() {
     // Try to import the compiled routes first
     let registerRoutes;
     try {
-      const routesModule = await import('../dist/index.js');
+      const routesModule = await import('../dist/routes.js');
       registerRoutes = routesModule.registerRoutes;
     } catch (distError) {
       console.log('Compiled routes not found, trying alternate paths...');
@@ -101,58 +101,12 @@ async function initializeRoutes() {
       });
     });
 
-    // Add the analyze-job endpoint for AI analysis
-    app.post('/api/analyze-job', async (req, res) => {
-      try {
-        const hasTogetherKey = !!process.env.TOGETHER_API_KEY;
-        
-        if (!hasTogetherKey) {
-          return res.status(503).json({
-            error: 'AI analysis unavailable',
-            message: 'TOGETHER_API_KEY not configured',
-            serviceMode: 'minimal'
-          });
-        }
-
-        const { jobTitle, companyName, jobDescription, jobUrl } = req.body;
-        
-        if (!jobDescription || jobDescription.trim().length < 20) {
-          return res.status(400).json({
-            error: 'Invalid input',
-            message: 'Please provide a job description or URL with sufficient detail for analysis'
-          });
-        }
-
-        // Fallback analysis matching frontend expectations
-        const analysisResult = {
-          scanId: Date.now(),
-          originalUrl: jobUrl || '',
-          originalDescription: jobDescription,
-          contentHash: 'fallback-hash',
-          contentFingerprint: 'fallback-fingerprint', 
-          redFlags: [
-            {
-              category: 'Fallback Mode',
-              description: 'Using simplified analysis - full AI features require deployment configuration',
-              severity: 'LOW'
-            }
-          ],
-          confidenceExplanation: 'Fallback analysis mode active',
-          cacheExpiresAt: null,
-          analysisSource: 'fallback',
-          id: Date.now(),
-          isSharedToArchive: false,
-          createdAt: new Date().toISOString()
-        };
-
-        res.json(analysisResult);
-      } catch (error) {
-        console.error('Analysis error:', error);
-        res.status(500).json({
-          error: 'Analysis failed',
-          message: error.message
-        });
-      }
+    // Redirect to dedicated analyze-job function
+    app.post('/api/analyze-job', (req, res) => {
+      res.status(501).json({
+        error: 'Use dedicated endpoint',
+        message: 'Job analysis handled by /api/analyze-job.js'
+      });
     });
     
     routesInitialized = true;
