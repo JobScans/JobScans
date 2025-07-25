@@ -124,6 +124,19 @@ try {
     }
   }
   
+  // Copy routes to api folder for Vercel access
+  try {
+    const routesSource = path.join(process.cwd(), 'dist/routes.js');
+    const routesDest = path.join(process.cwd(), 'api/routes.js');
+    
+    if (fs.existsSync(routesSource)) {
+      fs.copyFileSync(routesSource, routesDest);
+      console.log('\nCopied routes.js to api folder for Vercel deployment');
+    }
+  } catch (copyError) {
+    console.log('Warning: Could not copy routes to api folder:', copyError.message);
+  }
+
   console.log('\n=== BUILD COMPLETED SUCCESSFULLY ===');
   console.log('All build steps completed without errors');
   
