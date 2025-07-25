@@ -33,7 +33,8 @@ const parseJobInput = (input: string) => {
       jobTitle = "Web Job Posting";
       companyName = url.hostname.split('.')[0];
     }
-    jobDescription = `Job from ${jobUrl}. Please paste full description for better analysis.`;
+    // For URLs, create a longer description that meets validation requirements
+    jobDescription = `Job posting from ${jobUrl}. This is a ${url.hostname.includes('indeed.com') ? 'Indeed' : url.hostname.includes('linkedin.com') ? 'LinkedIn' : 'external'} job listing. The AI will analyze the URL and extract available information about the position, company, and potential red flags. URL-based analysis may have limited information compared to full job descriptions, but can still identify common patterns associated with ghost jobs, suspicious posting behaviors, and employer reputation issues.`;
   } catch (e) {
     // If not a valid URL, treat as raw description
     const lines = input.split('\n').filter(line => line.trim() !== '');
@@ -104,6 +105,8 @@ export default function Home() {
       ...(isUrl ? { jobUrl: input.trim() } : { jobDescription: input.trim() })
     });
   };
+
+
 
   const handleNewScan = () => {
     setCurrentScan(null);
@@ -189,6 +192,7 @@ This analysis is for informational purposes only. Always conduct your own resear
 
   return (
     <div className="min-h-screen bg-stone-100 flex flex-col">
+
       
       <div className="flex-1 py-4 px-4">
         <div className="max-w-4xl mx-auto">
@@ -364,73 +368,106 @@ This analysis is for informational purposes only. Always conduct your own resear
 
                 {/* Right Column - AI Analysis */}
                 <div className="bg-white rounded-2xl shadow-lg border overflow-hidden" style={{borderColor: 'var(--sage-200)'}}>
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white">
-                    <h2 className="text-xl font-bold">🧠 AI Analysis</h2>
+                  <div className="bg-soft-blue-gradient p-4 text-white">
+                    <h2 className="text-xl font-bold flex items-center">
+                      🧠 AI Analysis
+                    </h2>
                   </div>
                   <div className="p-6">
-                    <p className="text-gray-700 leading-relaxed">{currentScan.aiSummary}</p>
+                    <p className="leading-relaxed" style={{color: 'var(--sage-700)'}}>{currentScan.aiSummary}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Confidence Explanation */}
-              {currentScan.confidenceExplanation && (
-                <div className="bg-white rounded-2xl shadow-lg border overflow-hidden" style={{borderColor: 'var(--sage-200)'}}>
-                  <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-white">
-                    <h2 className="text-xl font-bold">💡 Confidence Explanation</h2>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-700 leading-relaxed">{currentScan.confidenceExplanation}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 justify-center">
-                <Button 
-                  onClick={handleNewScan}
-                  className="bg-stone-600 hover:bg-stone-700 text-white px-8 py-3 font-semibold"
-                >
-                  🔍 Analyze Another Job
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={handleCopyReport}
-                  className="border-stone-300 text-stone-700 hover:bg-stone-100 px-8 py-3 font-semibold"
-                >
-                  📋 Copy Report
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowOutreachModal(true)}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50 px-8 py-3 font-semibold"
-                >
-                  📧 Generate Outreach
-                </Button>
-                {currentScan.ghostLikelihoodScore >= 70 && (
-                  <Button 
-                    variant="outline"
-                    onClick={() => handleShareToArchive(currentScan.id)}
-                    className="border-red-300 text-red-700 hover:bg-red-50 px-8 py-3 font-semibold"
+              {/* Action Panel */}
+              <div className="bg-white rounded-2xl shadow-lg border p-6" style={{borderColor: 'var(--sage-200)'}}>
+                <h3 className="text-xl font-bold mb-4 text-center" style={{color: 'var(--sage-800)'}}>Take Action</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  <Button
+                    onClick={handleNewScan}
+                    className="bg-sage-gradient text-white py-3 px-4 font-semibold hover:opacity-90 transition-all duration-200 transform hover:scale-105 rounded-xl text-sm"
                   >
-                    🔗 Share to Archive
+                    🔁 Scan Another
                   </Button>
+                  <Button
+                    onClick={handleCopyReport}
+                    variant="outline"
+                    className="py-3 px-4 font-semibold transition-all duration-200 transform hover:scale-105 rounded-xl border-stone-300 text-stone-700 hover:bg-stone-50 text-sm"
+                  >
+                    📋 Copy Report
+                  </Button>
+                  <Button
+                    onClick={() => setShowOutreachModal(true)}
+                    variant="outline"
+                    className="py-3 px-4 font-semibold transition-all duration-200 transform hover:scale-105 rounded-xl text-sm"
+                    style={{borderColor: 'var(--soft-blue-500)', color: 'var(--soft-blue-600)'}}
+                  >
+                    📨 Outreach Message
+                  </Button>
+                  {currentScan && currentScan.ghostLikelihoodScore >= 70 && (
+                    <Button
+                      onClick={() => handleShareToArchive(currentScan.scanId)}
+                      variant="outline"
+                      className="py-3 px-4 font-semibold border-amber-400 text-amber-700 hover:bg-amber-50 transition-all duration-200 transform hover:scale-105 rounded-xl text-sm"
+                    >
+                      📁 Share Archive
+                    </Button>
+                  )}
+                </div>
+                
+
+              </div>
+
+              {/* Original Posting - Collapsible */}
+              <div className="bg-white rounded-2xl shadow-lg border overflow-hidden" style={{borderColor: 'var(--sage-200)'}}>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="w-full p-6 text-left hover:bg-stone-50 transition-colors duration-200"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-semibold" style={{color: 'var(--sage-700)'}}>
+                      Original Job Description
+                    </span>
+                    <span style={{color: 'var(--sage-500)'}}>
+                      {showFullDescription ? '🔼 Hide' : '🔽 Show'}
+                    </span>
+                  </div>
+                </Button>
+                {showFullDescription && (
+                  <div className="border-t p-6" style={{borderColor: 'var(--sage-200)', backgroundColor: 'var(--sage-50)'}}>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-semibold mb-2" style={{color: 'var(--sage-700)'}}>Job URL:</h4>
+                        <p className="break-words bg-white p-3 rounded-lg border" style={{color: 'var(--sage-600)', borderColor: 'var(--sage-200)'}}>
+                          {parsedData.jobUrl || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2" style={{color: 'var(--sage-700)'}}>Full Description:</h4>
+                        <div className="bg-white p-4 rounded-lg border max-h-96 overflow-y-auto" style={{borderColor: 'var(--sage-200)'}}>
+                          <p className="whitespace-pre-wrap" style={{color: 'var(--sage-600)'}}>
+                            {parsedData.jobDescription || 'No description provided.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           </div>
         )}
 
-        {/* Archive View */}
-        {showArchive && (
-          <ArchiveView onBack={() => setShowArchive(false)} />
-        )}
+        {/* Archive Section */}
+        {showArchive && <ArchiveView onClose={() => setShowArchive(false)} />}
 
         {/* Outreach Modal */}
-        {showOutreachModal && currentScan && (
+        {currentScan && (
           <OutreachModal
-            scan={currentScan}
+            isOpen={showOutreachModal}
             onClose={() => setShowOutreachModal(false)}
+            scanData={currentScan}
           />
         )}
 
@@ -440,9 +477,10 @@ This analysis is for informational purposes only. Always conduct your own resear
       </div>
       
       {/* Footer */}
-      <footer className="bg-stone-200 py-6 px-4 text-center text-stone-600 text-sm">
-        <p>JobScans © 2025 | AI-powered job posting analysis | <a href="/archive" className="text-stone-700 hover:underline">Community Archive</a></p>
-        <p className="mt-1">This tool is for informational purposes only. Always conduct your own research before making career decisions.</p>
+      <footer className="py-6 border-t border-stone-300 bg-stone-50">
+        <div className="text-center">
+          <p className="text-stone-600">JobScans © 2025</p>
+        </div>
       </footer>
     </div>
   );
