@@ -123,30 +123,26 @@ async function initializeRoutes() {
           });
         }
 
-        // Simple fallback analysis response
+        // Fallback analysis matching frontend expectations
         const analysisResult = {
-          id: Date.now(),
-          jobTitle: jobTitle || 'Job Analysis',
-          companyName: companyName || 'Unknown Company',
-          jobUrl: jobUrl || '',
-          jobDescription,
-          ghostJobLikelihood: 25,
-          confidenceScore: 0.7,
-          reasoning: 'Fallback analysis - full AI analysis requires proper route initialization',
+          scanId: Date.now(),
+          originalUrl: jobUrl || '',
+          originalDescription: jobDescription,
+          contentHash: 'fallback-hash',
+          contentFingerprint: 'fallback-fingerprint', 
           redFlags: [
             {
-              category: 'posting_quality',
-              severity: 'low',
-              description: 'Using fallback analysis mode',
-              impact: 'Analysis may be incomplete'
+              category: 'Fallback Mode',
+              description: 'Using simplified analysis - full AI features require deployment configuration',
+              severity: 'LOW'
             }
           ],
-          recommendations: [
-            'This is a fallback analysis. For detailed AI insights, please check deployment configuration.'
-          ],
-          overallAssessment: 'moderate',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          confidenceExplanation: 'Fallback analysis mode active',
+          cacheExpiresAt: null,
+          analysisSource: 'fallback',
+          id: Date.now(),
+          isSharedToArchive: false,
+          createdAt: new Date().toISOString()
         };
 
         res.json(analysisResult);
