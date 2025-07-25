@@ -5,6 +5,13 @@ const path = require('path');
 
 console.log('Starting JobScans build...');
 
+// Check if API key is available and set build-time environment variable
+const hasTogetherKey = !!process.env.TOGETHER_API_KEY;
+console.log(`API Key detection: ${hasTogetherKey ? 'Available' : 'Missing'}`);
+
+// Set build-time environment variable for client-side detection
+process.env.VITE_SERVICE_MODE = hasTogetherKey ? 'full' : 'minimal';
+
 // Function to try multiple command variations
 function tryCommand(commands, description) {
   for (const cmd of commands) {
