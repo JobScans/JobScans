@@ -29,7 +29,7 @@ async function initializeRoutes() {
     // Try to import the compiled routes first
     let registerRoutes;
     try {
-      const routesModule = await import('../dist/routes.js');
+      const routesModule = await import('../dist/index.js');
       registerRoutes = routesModule.registerRoutes;
     } catch (distError) {
       console.log('Compiled routes not found, importing TypeScript directly...');
