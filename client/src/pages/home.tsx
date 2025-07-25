@@ -58,14 +58,14 @@ export default function Home() {
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
 
-  // Get fund status for service mode
+  // Get usage status for service mode
   const { data: fundStatus } = useQuery<{
     serviceMode?: {
       mode: string;
       message: string;
     };
   }>({
-    queryKey: ['/api/community-fund-status'],
+    queryKey: ['/api/usage-status'],
     refetchInterval: 30000,
   });
 
