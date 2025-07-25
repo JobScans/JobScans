@@ -95,20 +95,30 @@ try {
   const frontendDist = path.join(process.cwd(), 'dist/public');
   console.log(`\nFrontend build output exists: ${fs.existsSync(frontendDist)}`);
   
-  // Build backend with enhanced diagnostics
+  // Build backend with enhanced diagnostics - create both index.js and routes.js
   tryCommand([
-    'npx esbuild server/routes.ts --platform=node --packages=external --bundle --format=cjs --outdir=dist',
-    './node_modules/.bin/esbuild server/routes.ts --platform=node --packages=external --bundle --format=cjs --outdir=dist',
-    'node_modules/.bin/esbuild server/routes.ts --platform=node --packages=external --bundle --format=cjs --outdir=dist'
+    'npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist',
+    './node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist',
+    'node_modules/.bin/esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist'
   ], 'backend build');
   
   // Verify backend build output
-  const backendDist = path.join(process.cwd(), 'dist/routes.js');
+  const backendDist = path.join(process.cwd(), 'dist/index.js');
   console.log(`\nBackend build output exists: ${fs.existsSync(backendDist)}`);
   
   if (fs.existsSync(backendDist)) {
     const fileSize = fs.statSync(backendDist).size;
     console.log(`Backend build size: ${fileSize} bytes`);
+    
+    if (DEBUG_BUILD) {
+      console.log('\nChecking compiled routes exports...');
+      try {
+        const compiledContent = fs.readFileSync(backendDist, 'utf8');
+        console.log('File contains registerRoutes:', compiledContent.includes('registerRoutes'));
+      } catch (readError) {
+        console.log('Could not read compiled file:', readError.message);
+      }
+    }
   }
   
   console.log('\n=== BUILD COMPLETED SUCCESSFULLY ===');
