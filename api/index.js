@@ -29,11 +29,30 @@ async function initializeRoutes() {
     // Try to import the compiled routes first
     let registerRoutes;
     try {
-      const routesModule = await import('../dist/routes.js');
+      // Try multiple possible paths for the compiled routes
+      let routesModule;
+      try {
+        // First try the copied routes file in the same directory
+        routesModule = await import('./routes.js');
+      } catch (e1) {
+        try {
+          routesModule = await import('../dist/routes.js');
+        } catch (e2) {
+          try {
+            routesModule = await import('/var/task/dist/routes.js');
+          } catch (e3) {
+            console.log('Route import attempts failed:', { e1: e1.message, e2: e2.message, e3: e3.message });
+            throw new Error('All route import paths failed');
+          }
+        }
+      }
       registerRoutes = routesModule.registerRoutes;
+      if (!registerRoutes) {
+        throw new Error('registerRoutes function not found in imported module');
+      }
     } catch (distError) {
       console.log('Compiled routes not found, trying alternate paths...');
-      // TypeScript files aren't available in Vercel deployment - skip direct import
+      console.log('Error details:', distError.message);
       throw new Error('Compiled routes not available, using fallback endpoints');
     }
     
