@@ -23,7 +23,7 @@ async function analyzeJobPosting() {
             document.body.appendChild(sidebar);
         }
 
-        // 3. Check community archive (simulated)
+        // 3. Check community archive by messaging the background script
         const communityAlert = await checkCommunityArchive(jobData);
 
         // 4. Run the local analysis on the job data
@@ -167,8 +167,7 @@ function populateSidebar(sidebar, jobData, analysisResults, communityAlert) {
         communityAlertHTML = `
             <div class="community-alert">
                 <h5><span class="icon-community">🛡️</span> Community Alert</h5>
-                <p>${communityAlert.reason}</p>
-                <a href="${communityAlert.archiveUrl}" target="_blank">View Report</a>
+                <p>A similar job was flagged as: "<strong>${communityAlert.reason}</strong>"</p>
             </div>
         `;
     }
@@ -265,15 +264,20 @@ function showFlaggingForm(jobData) {
             return;
         }
         
-        console.log("Submitting anonymous flag:", { ...jobData, reason: fullReason });
         // Send message to background script to save to Firestore
         chrome.runtime.sendMessage({
             type: 'FLAG_JOB',
             payload: { ...jobData, reason: fullReason, flaggedAt: new Date().toISOString() }
+        }, (response) => {
+            if (response.status === 'success') {
+                console.log("Flag submitted successfully.");
+                // You could show a success message in the UI here
+            } else {
+                console.error("Failed to submit flag:", response.error);
+            }
         });
         
         modal.remove();
-        // Optionally show a confirmation message
     };
 }
 
@@ -292,20 +296,25 @@ function generateResearchLinks(companyName) {
 }
 
 /**
- * Simulates checking a backend for community alerts.
+ * Checks the community archive by sending a message to the background script.
  */
 async function checkCommunityArchive(jobData) {
-    // In a real implementation, this would message the background script,
-    // which would then query Firestore.
-    console.log("Checking community archive for:", jobData.title);
-    // For demonstration, we'll return a fake alert for a specific company.
-    if (jobData.company.toLowerCase().includes("synergy corp")) {
-        return {
-            reason: "A similar job was flagged 2 weeks ago as a 'ghost job'.",
-            archiveUrl: "#" // This would be a real link to your web app's archive page
-        };
+    console.log("Sending message to check archive for:", jobData.title);
+    try {
+        const response = await chrome.runtime.sendMessage({
+            type: 'CHECK_ARCHIVE',
+            payload: { title: jobData.title, company: jobData.company }
+        });
+
+        if (response.status === 'success' && response.payload) {
+            console.log("Received community alert from background script:", response.payload);
+            return response.payload;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error communicating with background script:", error);
+        return null;
     }
-    return null;
 }
 
 /**
@@ -342,7 +351,7 @@ function applyStyles(element) {
         #flag-job-btn:hover { background-color: #fca5a5; }
         .community-alert { background-color: #fffbeb; border: 1px solid #facc15; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
         #jobscans-flag-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000000; display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 24px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: var(--jobscans-shadow); }
+        .modal-content { background: white; padding: 24px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .modal-content h4 { margin-top: 0; }
         .modal-content p { font-size: 14px; color: #475569; }
         .modal-content select, .modal-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-top: 12px; }
