@@ -79,10 +79,10 @@ export default function App() {
             ))}
           </div>
           <div className="hidden md:flex">
-             <a href="#" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center space-x-2">
+             <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center space-x-2">
                 <Download size={16} />
                 <span>Get Extension</span>
-            </a>
+            </button>
           </div>
           <div className="md:hidden">
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-600 hover:text-slate-900">
@@ -109,10 +109,10 @@ export default function App() {
                 </button>
               ))}
               <div className="pt-4 px-3">
-                <a href="#" className="bg-indigo-600 text-white w-full block text-center px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
+                <button className="bg-indigo-600 text-white w-full block text-center px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
                     <Download size={16} />
                     <span>Get Extension</span>
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -157,13 +157,13 @@ const HomePage = ({ onNavigate }) => {
           JobScans is a free browser extension that helps you analyze job postings and anonymously flag suspicious listings to protect the community.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
-          <a href="#" className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg">
+          <button className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2 shadow-lg">
             <Download size={20} />
             <span>Download for Chrome</span>
-          </a>
-          <a href="#" className="w-full sm:w-auto bg-slate-200 text-slate-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-slate-300 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
+          </button>
+          <button className="w-full sm:w-auto bg-slate-200 text-slate-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-slate-300 transition-transform transform hover:scale-105 flex items-center justify-center space-x-2">
             <span>Download for Firefox</span>
-          </a>
+          </button>
         </div>
       </div>
       
@@ -326,9 +326,9 @@ const DonatePage = () => (
       <p className="mt-4 text-lg text-slate-600">JobScans is a free, open-source project. We are committed to keeping it free of ads and personal tracking.</p>
       <p className="mt-4 text-lg text-slate-600">If you find this tool valuable, please consider making a small donation to help cover server costs for the community archive and support future development.</p>
       <div className="mt-8">
-        <a href="#" className="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition-colors">
+        <button className="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition-colors">
           Donate via Ko-fi (Coming Soon)
-        </a>
+        </button>
       </div>
     </div>
   </div>
