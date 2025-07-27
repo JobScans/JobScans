@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Download, BookOpen, DollarSign, HelpCircle, Github, Menu, X, ShieldAlert, Users, FileSearch } from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, query, onSnapshot } from 'firebase/firestore';
 
-// --- Firebase Imports (will be used in the next step) ---
-// import { initializeApp } from 'firebase/app';
-// import { getFirestore, collection, query, onSnapshot } from 'firebase/firestore';
+// --- Firebase Config ---
+// User's live Firebase project configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBM8da3uCbBcHZS8E3yrmkRy7P8dQHVtzg",
+  authDomain: "jobscans.firebaseapp.com",
+  projectId: "jobscans",
+  storageBucket: "jobscans.appspot.com",
+  messagingSenderId: "179978435562",
+  appId: "1:179978435562:web:76b5284493712a6a6f9093",
+  measurementId: "G-SLME4X87JC"
+};
 
-// --- Firebase Config (placeholders, will be connected later) ---
-// const firebaseConfig = { /* Your Firebase Config Object */ };
-// const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 
 // Main App Component - Acts as a router
@@ -219,33 +228,28 @@ const ArchivePage = () => {
     const [flaggedJobs, setFlaggedJobs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // This useEffect simulates fetching data from a Firestore database.
     useEffect(() => {
         setIsLoading(true);
-        const mockJobs = [
-            { id: '1', title: 'Senior Marketing Ninja', company: 'Stealth Startup Inc.', location: 'Remote', reason: 'Vague job description, seems to be data mining.', flaggedAt: new Date(Date.now() - 86400000) },
-            { id: '2', title: 'UX/UI Designer', company: 'Creative Solutions', location: 'New York, NY', reason: 'Company has no online presence or history.', flaggedAt: new Date(Date.now() - 172800000) },
-            { id: '3', title: 'Data Entry Specialist (Urgent Hire)', company: 'Global Tech', location: 'Remote', reason: 'Unrealistic pay for the role ($50/hr).', flaggedAt: new Date(Date.now() - 259200000) },
-            { id: '4', title: 'Project Manager', company: 'Synergy Corp', location: 'Austin, TX', reason: 'This exact job has been posted for 6+ months.', flaggedAt: new Date(Date.now() - 345600000) },
-        ];
+        const q = query(collection(db, "flaggedJobs"));
         
-        const timer = setTimeout(() => {
-            setFlaggedJobs(mockJobs);
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const jobs = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Ensure flaggedAt is a Date object
+            const flaggedAtDate = data.flaggedAt?.toDate ? data.flaggedAt.toDate() : new Date(data.flaggedAt);
+            jobs.push({ id: doc.id, ...data, flaggedAt: flaggedAtDate });
+          });
+          // Sort by date descending
+          jobs.sort((a, b) => b.flaggedAt - a.flaggedAt);
+          setFlaggedJobs(jobs);
+          setIsLoading(false);
+        }, (error) => {
+            console.error("Error fetching flagged jobs: ", error);
             setIsLoading(false);
-        }, 1000);
+        });
 
-        // const q = query(collection(db, "flaggedJobs"));
-        // const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        //   const jobs = [];
-        //   querySnapshot.forEach((doc) => {
-        //     jobs.push({ id: doc.id, ...doc.data() });
-        //   });
-        //   setFlaggedJobs(jobs);
-        //   setIsLoading(false);
-        // });
-
-        return () => clearTimeout(timer);
-        // return () => unsubscribe();
+        return () => unsubscribe();
     }, []);
 
     return (
@@ -280,6 +284,7 @@ const ArchivePage = () => {
 
 const FlaggedJobCard = ({ job }) => {
     const timeAgo = (date) => {
+        if (!date) return 'a while ago';
         const seconds = Math.floor((new Date() - date) / 1000);
         let interval = seconds / 31536000;
         if (interval > 1) return Math.floor(interval) + " years ago";
