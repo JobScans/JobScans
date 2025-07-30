@@ -1,4 +1,3 @@
-
 // This script is injected into the job posting pages (LinkedIn, Indeed, etc.)
 
 console.log("JobScans content script loaded!");
